@@ -20,6 +20,9 @@ def v(i, j, d):
     """
     return 81 * (i - 1) + 9 * (j - 1) + d
 
+def to_grid(str):
+    parts = [str[i:i+9] for i in range(0, len(str), 9)]
+    return parts
 
 def sudoku_clauses():
     """
@@ -62,10 +65,13 @@ def valid(cells, clauses):
                     clauses.append([-v(xi[0], xi[1], d), -v(xj[0], xj[1], d)])
 
 def generate_clauses(grid, type):
+    if type == 'nor':
+        grid = to_grid(grid)
     clauses = sudoku_clauses()
     colors = {'red': [], 'blue' : [], 'yellow': [], 'green': [], 'pink': [],
         'black': [], 'lblue': [], 'brown': [], 'grey': []}
     if(type == 'color'):
+        grid = convert_to_grid(grid)
         for i in range(1,10):
             for j in range(1,10):
                 d = grid[i-1][j-1]
@@ -80,7 +86,6 @@ def generate_clauses(grid, type):
         for i in range(1, 10):
             reg_grid[i-1] = [i[0] for i in grid[i-1]]
         grid = reg_grid
-        pprint(grid)
 
     if(type == 'gt'):
         for pair in grid:
@@ -100,6 +105,7 @@ def generate_clauses(grid, type):
             if d:
                 clauses.append([v(i, j, d)])
     return clauses
+
 def read_cell(i, j):
     # return the digit of cell i, j according to the solution
     for d in range(1, 10):
@@ -112,18 +118,12 @@ def solve(clauses):
     # print(sol)
     return sol
 
-
-
-    pprint(grid)
-    # for c, values in colors.items():
-    #     print(c)
-    #     for val in values:
-    #         print(read_cell(val[0], val[1]))
 def decoder(sol):
     for i in range(1, 10):
         for j in range(1, 10):
             grid[i - 1][j - 1] = read_cell(i, j)
     return grid
+
 def convert_to_grid(sudoku_list):
     return [sudoku_list[i::9] for i in range(10)]
 
@@ -141,11 +141,7 @@ def convert_int_to_pos(pair):
         return x//9 + 1
     return ((row(x1), col(x1)), (row(x2), col(x2)))
 
-def to_grid(str):
-    print(str)
-    parts = textwrap.wrap(str, 9)
-    grid = [x.split() for x in parts]
-    return grid
+
 
 # if __name__ == '__main__':
 #     from pprint import pprint
