@@ -61,7 +61,7 @@ def gen_gt_puzzles(n):
             blocks = [str(j)[19:].split('.png')[0] for x in puzzle for j in x.find_all('td')]
             clauses = []
             clauses = [gt(idx+1, direc) for idx, o in enumerate(blocks) for direc in o[2:] if len(o)>2]
-            gtsudoku = (diff, i, clauses)
+            gtsudoku = (diff, numb, clauses)
             puzzles.append(gtsudoku)
             answer = solution(numb,'gt')
             pzfile = open('gtpuzzles/'+ str(numb) + '_' + diff + '.puzzle','w')
@@ -98,7 +98,7 @@ def gen_colour_puzzles(n):
             numb = str(soup.find('div',{"class": 'grid'})).split('</table>')[1].split('<br/>')[0][23:]
             row = 0
             sudoku = [(int(x.getText()), col(x['style'][18:-1])) if x.getText() !=u'\xa0' else (0,col(x['style'][18:-1])) for x in puzzle]
-            gtsudoku = (diff, i, sudoku)
+            gtsudoku = (diff, numb, sudoku)
             puzzles.append(gtsudoku)
             answer = solution(numb,'col')
             pzfile = open('colpuzzles/' + str(numb) + '_' + diff + '.puzzle','w+')
@@ -134,7 +134,7 @@ def gen_puzzles(n):
             numb = str(soup.find('div',{"class": 'grid'})).split('</table>')[1].split('<br/>')[0][23:]
             row = 0
             sudoku = [int(x.getText()) if x.getText() !=u'\xa0' else 0 for x in puzzle]
-            gtsudoku = (diff, i, sudoku)
+            gtsudoku = (diff, numb, sudoku)
             puzzles.append(gtsudoku)
             answer = solution(numb,'nor')
             pzfile = open('norpuzzles/'+str(numb) + '_' + diff + '.puzzle','w')
@@ -149,7 +149,7 @@ def gen_puzzles(n):
     return puzzles
 
 def main():
-    n = 60
+    n = 1800
     print('generating color puzzles')
     gen_colour_puzzles(n)
     print('generating normal puzzles')
