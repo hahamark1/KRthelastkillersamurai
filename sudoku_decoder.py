@@ -73,11 +73,12 @@ def variables():
     for i in range(1, 10):
         for j in range(1, 10):
             # denotes (at least) one of the 9 digits (1 clause)
-            for d in range(1,10):
-                res.append((i, j, d))
+
+            cell_d.append([(i, j, d) for d in range(1,10)])
             # does not denote two different digits at once (36 clauses)
             for d in range(1, 10):
-                cell_d.append([i,j,d])
+                res.append((i, j, d) )
+            for d in range(1, 9):
                 for dp in range(d + 1, 10):
                     cell_u.append([(i, j, -d), (i, j, -dp)])
 
@@ -88,21 +89,21 @@ def variables():
 
     for r in range(1, 10):
         for v in range(1, 10):
-            for c in range(1,10):
-                row_d.append([(r, c, v)])
-                col_d.append([(r, c, v)])
-                for cp in range( c+1,10):
+            row_d.append([(c,r, v) for c in range(1,10)])
+            col_d.append([(r, c, v) for c in range(1,10)])
+            for c in range(1,9):
+
+                for cp in range(c+1,10):
                     row_u.append([(r, c, -v), (r,cp, -v)])
                     col_u.append([(c, r, -v), (cp,r, -v)])
 
-    for r_o in [1,2,3]:
-        for c_o in [1,2,3]:
+    for r_o in [1,4,7]:
+        for c_o in [1,4,7]:
             for v in range(1, 10):
+                block_d.append([((r_o),(c_o), v) for r in range(1,4) for c in range(1,4)])
                 for r in range(1, 10):
-                    for c in range(1,10):
-                        block_d.append([((r_o*3+(r%3)),(c_o*3+(r%3)), v)])
                     for c in range(r+1,10):
-                        block_u.append([((r_o*3+(r%3)),(c_o*3+(r%3)), -v), ((r_o*3+(c%3)),(c_o*3+(c%3)), -v)])
+                        block_u.append([((r_o+(r%3)),(c_o+(r%3)), -v), ((r_o+(c%3)),(c_o+(c%3)), -v)])
     # # ensure 3x3 sub-grids "regions" have distinct values
     # for i in 1, 4, 7:
     #     for j in 1, 4 ,7:
@@ -125,22 +126,30 @@ def valid_eff(cells, clauses):
 
 
 def small_arrow(clauses, V):
-    # res = []
+    res = []
     for x in clauses:
-        if (x in V):
-            x.remove(i for i in V)
-    for i in clauses:
-        print(i)
-    clauses = [(x[0],x[1],x[2]) for x in clauses]
+        x = [i for i in x if i not in V]
+        if x:
+            res.append(x)
+    clauses = [[(x[0],x[1],x[2]) for x in y] for y in res]
     return clauses
 
-def big_arrow(clauses,literals):
+def big_arrow_min(clauses,literals):
     res = []
-    literals = [-1*x for x in literals]
+    literals = [(x[0],x[1],-x[2]) for x in literals]
     for x in clauses:
-        if not set(literals).isdisjoint(x):
+        if not set(x) & set(literals):
             res.append(x)
-    return(x)
+    return(res)
+
+def big_arrow_plus(clauses,literals):
+    res = []
+    # literals = [(x[0],x[1],-x[2]) for x in literals]
+    for x in clauses:
+        if not set(x) & set(literals):
+            res.append(x)
+
+    return(res)
 
 def sameCell(V_plus,clause):
     for x in V_plus:
@@ -166,12 +175,12 @@ def sameBlock(V_plus,clause):
             if x[0] <= 3:
                 lucRow = 1
             else:
-                lucRow = (((x[0]-1)/3)*3)+1
+                lucRow = (int((x[0]-1)/3)*3)+1
             if x[1] <= 3:
                 lucCol = 1
             else:
-                lucCol = (((x[1]-1)/3)*3)+1
-            if (lucRow <= x[0]) and (clause[0] <= lucRow + 3) and  (lucCol <= x[1]) and (clause[1] <= lucCol + 3):
+                lucCol = (int((x[1]-1)/3)*3)+1
+            if (lucRow <= x[0] and clause[0] <= lucRow + 3) and  (lucCol <= x[1] and clause[1] <= lucCol + 3):
                 return True
     return False
 
@@ -182,6 +191,7 @@ def eff_sudoku_clauses(grid):
     # all clauses
     clauses, cell_d, row_d, col_d, block_d, cell_u, row_u, col_u, block_u = variables()
     V_min = []
+
     for x in clauses:
         if sameCell(assigned, x):
             V_min.append(x)
@@ -191,22 +201,10 @@ def eff_sudoku_clauses(grid):
             V_min.append(x)
         elif sameBlock(assigned, x):
             V_min.append(x)
-    pseudo1 = big_arrow(clauses,assigned)
-    pseudo2 = big_arrow(cell_u+row_u+col_u+block_u, V_min)
-    pseudo3 = small_arrow(cell_d+row_d+col_d+block_d, V_min)
-    print(cell_d[0])
-    print(row_d[0])
-    print(col_d[0])
-    print(block_d[0])
-    err
-    # print(pseudo1)
-    # print(pseudo2)
-    # print(pseudo3)
-    clauses = [big_arrow(clauses,assigned)] + big_arrow(cell_u+row_u+col_u+block_u, V_min) + small_arrow(cell_d+row_d+col_d+block_d, V_min)
-    for x in clauses:
-        print(x)
-        print(v(x[0],x[1],x[2]))
-    clauses = [v(x[0],x[1],x[2]) for x in clauses]
+
+    clauses =  [big_arrow_plus(assigned,assigned)] + big_arrow_min(cell_u+row_u+col_u+block_u, V_min) + small_arrow(cell_d+row_d+col_d+block_d, V_min)
+
+    clauses = [[v(x[0],x[1],x[2])  if x[2] > 0 else -v(x[0],x[1],x[2])for x in y] for y in clauses ]
     return clauses
 
 
@@ -233,6 +231,8 @@ def generate_clauses(grid, type, encoding):
             grid1 = col_convert_to_grid(grid)
         else: grid1 = convert_to_grid(grid)
         clauses = eff_sudoku_clauses(grid1)
+
+
     colors = {'red': [], 'blue' : [], 'yellow': [], 'green': [], 'pink': [],
         'black': [], 'lblue': [], 'brown': [], 'grey': []}
     if(type == 'color'):
@@ -270,8 +270,6 @@ def generate_clauses(grid, type, encoding):
             if d:
                 clauses.append([v(i, j, d)])
     return clauses
-
-
 
 def read_cell(i, j):
     # return the digit of cell i, j according to the solution

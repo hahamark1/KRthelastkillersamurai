@@ -23,6 +23,13 @@ def get_pickles():
     gt_sudoku = pickle.load(open(files[2][1], 'rb'))
     return col_sudoku, norm_sudoku, gt_sudoku
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
 def empty_folder(folder):
     for the_file in os.listdir(folder):
         file_path = os.path.join(folder, the_file)
@@ -36,12 +43,13 @@ def empty_folder(folder):
 def average_dict(list):
     avg_dict = {}
     for dict in list:
-        for key, value in dict:
-            if key in dict:
-                dict[key] += value
-            else:
-                dict[key] = value
-    return {key: value / len(list) for key, value in avg.iteritems()}
+        for key, value in dict.items():
+            if is_number(value):
+                if key in avg_dict:
+                    avg_dict[key] += float(value)
+                else:
+                    avg_dict[key] = float(value)
+    return {key: value / len(list) for key, value in avg_dict.items()}
 
 def data_to_dict(data):
     # print(data)
@@ -57,41 +65,51 @@ if __name__ == '__main__':
     empty_folder(folder)
     col_sudoku, norm_sudoku, gt_sudoku = get_pickles()
     # print(len(col_sudoku),len(gt_sudoku))
-    col_clauses_naive = [[generate_clauses(i[2], 'color', 'naive'),i[0],i[1]] for i in col_sudoku[:1]]
+    # col_clauses_naive = [[generate_clauses(i[2], 'color', 'naive'),i[0],i[1]] for i in col_sudoku]
     # norm_clauses_naive = [[generate_clauses(i[2], 'nor', 'naive'),i[0],i[1]] for i in norm_sudoku]
     # gt_clauses_naive = [[generate_clauses(i[2], 'gt', 'naive'),i[0],i[1]] for i in gt_sudoku]
-    col_clauses_eff = [[generate_clauses(i[2], 'color', 'eff'),i[0],i[1]] for i in col_sudoku[:1]]
+    # col_clauses_eff = [[generate_clauses(i[2], 'color', 'eff'),i[0],i[1]] for i in col_sudoku[:1]]
     # norm_clauses_eff = [[generate_clauses(i[2], 'nor', 'eff'),i[0],i[1]] for i in norm_sudoku]
     # gt_clauses_eff = [[generate_clauses(i[2], 'gt', 'eff'),i[0],i[1]] for i in gt_sudoku]
     # print(gt_clauses[0])
-    print(len(col_clauses_naive[0]))
-    print(len(col_clauses_eff[0]))
+    # print(len(col_clauses_naive[0]))
+    # print(len(col_clauses_eff[0]))
     col_naive_results = []
     l = 0
-    for clauses in col_clauses_naive[:1]:
+    for clauses in  col_sudoku:
         l+=1
         # print(clauses)
-        col_results.append((clauses[1], clauses[2],data_to_dict(testKb(clauses[0],"cnf_col_naive_%s.cnf" % l)),"cnf_col_naive_%s.cnf" % l))
-    col_eff_results = []
+        col_naive_results.append((clauses[0], clauses[1],data_to_dict(testKb(generate_clauses(clauses[2], 'color', 'naive'),"cnf_col_naive_%s.cnf" % l)),"cnf_col_naive_%s.cnf" % l))
+    col_results_eff = []
     l = 0
-    for clauses in col_clauses_eff[:1]:
+    # for clauses in col_clauses_eff[:1]:
+    #     l+=1
+    #     # print(clauses)
+    #     col_results_eff.append((clauses[1], clauses[2],data_to_dict(testKb(clauses[0],"cnf_col_eff_%s.cnf" % l)),"cnf_col_eff_%s.cnf" % l))
+    norm_results_naive = []
+    l = 0
+    for clauses in norm_sudoku:
         l+=1
-        # print(clauses)
-        col_results.append((clauses[1], clauses[2],data_to_dict(testKb(clauses[0],"cnf_col_eff_%s.cnf" % l)),"cnf_col_eff_%s.cnf" % l))
-    norm_naive_results = []
-    # l = 0
-    # for clauses in norm_clauses_naive:
-    #     l+=1
-    #     norm_results.append((clauses[1], clauses[2],data_to_dict(testKb(clauses[0],"cnf_nor_naive_%s.cnf" % l)),"cnf_nor_naive_%s.cnf" % l))
-    # gt_naive_results = []
-    # l = 0
-    # for clauses in gt_clauses_naive:
-    #     l+=1
-    #     gt_results.append((clauses[1], clauses[2], data_to_dict(testKb(clauses[0],"cnf_gt_naive_%s.cnf" % l)),"cnf_gt_naive_%s.cnf" % l))
+        norm_results_naive.append((clauses[0], clauses[1],data_to_dict(testKb(generate_clauses(clauses[2], 'nor', 'naive'),"cnf_nor_naive_%s.cnf" % l)),"cnf_nor_naive_%s.cnf" % l))
+    gt_results_naive = []
+    l = 0
+    for clauses in gt_sudoku:
+        l+=1
+        gt_results_naive.append((clauses[0], clauses[1], data_to_dict(testKb(generate_clauses(clauses[2], 'gt', 'naive'),"cnf_gt_naive_%s.cnf" % l)),"cnf_gt_naive_%s.cnf" % l))
 
     # Now write to grid and return statistics.
     # solutions = decoder(clauses)
 
-    average_results_nor = average_dict([x[2] for x in norm_results])
-    average_results_col = average_dict([x[2] for x in col_results])
-    average_results_gt = average_dict([x[2] for x in gt_results])
+    average_results_nor_naive = average_dict([x[2] for x in norm_results_naive])
+    average_results_col_naive = average_dict([x[2] for x in col_naive_results])
+    average_results_gt_naive = average_dict([x[2] for x in gt_results_naive])
+    print(average_results_nor_naive)
+    print(len(col_clauses_naive))
+    print(average_results_col_naive)
+    print(len(norm_clauses_naive))
+
+    print(average_results_gt_naive)
+    print(len(gt_clauses_naive))
+    outcomes = [('nor, col, gt'), average_results_nor_naive, average_results_col_naive, average_results_gt_naive]
+    pickle.dump(outcomes, open("outcomes.p", "wb"))
+    # print(average_results_col_naive)
