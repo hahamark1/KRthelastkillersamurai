@@ -1,4 +1,7 @@
 """
+This code is found on [15:51, 10/3/2017] Simone Van Bruggen: https://github.com/ContinuumIO/pycosat/blob/master/examples/sudoku.py
+It is adapted to our own needs but acknowledgement should go to the writers.
+
 The implementation of this Sudoku solver is based on the paper:
     "A SAT-based Sudoku solver" by Tjark Weber
     https://www.lri.fr/~conchon/mpri/weber.pdf
