@@ -76,12 +76,17 @@ if __name__ == '__main__':
     # print(len(col_clauses_eff[0]))
     col_naive_results = []
     l = 0
+    # for clauses in  col_sudoku:
+    #     l+=1
+    #     # print(clauses)
+    #     col_naive_results.append((clauses[0], clauses[1],data_to_dict(testKb(generate_clauses(clauses[2], 'color', 'naive'),"cnf_col_naive_%s.cnf" % l)),"cnf_col_naive_%s.cnf" % l))
+    col_eff_results= []
+    l = 0
     for clauses in  col_sudoku:
         l+=1
         # print(clauses)
-        col_naive_results.append((clauses[0], clauses[1],data_to_dict(testKb(generate_clauses(clauses[2], 'color', 'naive'),"cnf_col_naive_%s.cnf" % l)),"cnf_col_naive_%s.cnf" % l))
-    col_results_eff = []
-    l = 0
+        col_eff_results.append((clauses[0], clauses[1],data_to_dict(testKb(generate_clauses(clauses[2], 'color', 'eff'),"cnf_col_eff_%s.cnf" % l)),"cnf_col_eff_%s.cnf" % l))
+        print(col_eff_results[-1][2])
     # for clauses in col_clauses_eff[:1]:
     #     l+=1
     #     # print(clauses)
@@ -102,14 +107,15 @@ if __name__ == '__main__':
 
     average_results_nor_naive = average_dict([x[2] for x in norm_results_naive])
     average_results_col_naive = average_dict([x[2] for x in col_naive_results])
+    # average_results_eff_naive = average_dict([x[2] for x in col_naive_results])
     average_results_gt_naive = average_dict([x[2] for x in gt_results_naive])
     print(average_results_nor_naive)
-    print(len(col_clauses_naive))
+    print(len(col_sudoku))
     print(average_results_col_naive)
-    print(len(norm_clauses_naive))
+    print(len(norm_sudoku))
 
     print(average_results_gt_naive)
-    print(len(gt_clauses_naive))
+    print(len(gt_sudoku))
     outcomes = [('nor, col, gt'), average_results_nor_naive, average_results_col_naive, average_results_gt_naive]
     pickle.dump(outcomes, open("outcomes.p", "wb"))
     # print(average_results_col_naive)

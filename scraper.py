@@ -72,8 +72,9 @@ def gen_gt_puzzles(n):
             for l in answer:
                 ansfile.write(str(l))
             ansfile.close()
-
-    pickle.dump(puzzles, open("pickle/gtsudokus-%s.p" % datetime.now(), "wb"))
+            print(clauses)
+            print(numb)
+    # pickle.dump(puzzles, open("pickle/gtsudokus-%s.p" % datetime.now(), "wb"))
     return puzzles
 colours = {'#ff6666' : 'red', '#6666ff':'blue' ,'#ffff66':'yellow', '#ff66ff':'pink', '#66ff66':'green' , '#66ffff':'lblue' , '#666666': 'black', '#ffcccc': 'brown', '#ccccff': 'grey' }
 
@@ -149,13 +150,13 @@ def gen_puzzles(n):
     return puzzles
 
 def main():
-    n = 1800
-    print('generating color puzzles')
-    gen_colour_puzzles(n)
-    print('generating normal puzzles')
-    gen_puzzles(n)
+    n = 1
+    # print('generating color puzzles')
+    # gen_colour_puzzles(n)
+    # print('generating normal puzzles')
+    # gen_puzzles(n)
     print('generating gt puzzles')
-    gen_gt_puzzles(n)
+    gen_gt_puzzles(6)
 
 if __name__ == '__main__':
     main()

@@ -202,9 +202,9 @@ def eff_sudoku_clauses(grid):
         elif sameBlock(assigned, x):
             V_min.append(x)
 
-    clauses =  [big_arrow_plus(assigned,assigned)] + big_arrow_min(cell_u+row_u+col_u+block_u, V_min) + small_arrow(cell_d+row_d+col_d+block_d, V_min)
+    clauses =  [big_arrow_plus(assigned, assigned)] + big_arrow_min(cell_u+row_u+col_u+block_u, V_min) + small_arrow(cell_d+row_d+col_d+block_d, V_min)
 
-    clauses = [[v(x[0],x[1],x[2])  if x[2] > 0 else -v(x[0],x[1],x[2])for x in y] for y in clauses ]
+    clauses = [[v(x[0],x[1],x[2])  if x[2] > 0 else -v(x[0],x[1],-x[2])for x in y] for y in clauses ]
     return clauses
 
 
